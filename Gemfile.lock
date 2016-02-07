@@ -1,0 +1,54 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.3.8)
+    excon (0.45.4)
+    faraday (0.9.2)
+      multipart-post (>= 1.2, < 3)
+    heroku (3.42.33)
+      heroku-api (= 0.3.23)
+      launchy (= 2.4.3)
+      multi_json (= 1.11.2)
+      net-ssh (= 2.9.2)
+      net-ssh-gateway (= 1.2.0)
+      netrc (= 0.10.3)
+      rest-client (= 1.6.8)
+      rubyzip (= 1.1.7)
+    heroku-api (0.3.23)
+      excon (~> 0.44)
+      multi_json (~> 1.8)
+    json (1.8.3)
+    launchy (2.4.3)
+      addressable (~> 2.3)
+    mime-types (1.25.1)
+    multi_json (1.11.2)
+    multipart-post (2.0.0)
+    net-ssh (2.9.2)
+    net-ssh-gateway (1.2.0)
+      net-ssh (>= 2.6.5)
+    netrc (0.10.3)
+    octokit (4.2.0)
+      sawyer (~> 0.6.0, >= 0.5.3)
+    parallel (1.6.1)
+    rdoc (4.2.1)
+      json (~> 1.4)
+    rest-client (1.6.8)
+      mime-types (~> 1.16)
+      rdoc (>= 2.4.2)
+    rubyzip (1.1.7)
+    sawyer (0.6.0)
+      addressable (~> 2.3.5)
+      faraday (~> 0.8, < 0.10)
+    slack-notifier (1.5.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  heroku
+  octokit
+  parallel
+  slack-notifier
+
+BUNDLED WITH
+   1.11.2
