@@ -48,9 +48,9 @@ class GithubStats
       Parallel.each(branches, in_threads: 3) do |branch|
         commits = apply_date_options_for_commits(_client: _client, name: name, date_options: date_options, branch: branch)
         all_commits << commits
-        puts "  branch completed: #{branch}"
+        #puts "  branch completed: #{branch}"
       end
-      puts "repo completed: #{name}"
+      #puts "repo completed: #{name}"
     end
     all_commits.flatten
   end
