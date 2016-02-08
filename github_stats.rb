@@ -80,7 +80,9 @@ class GithubStats
       name = a[:name][0..8]
       date = a[:date].to_date.to_s
       message = c[:message]
-      "#{date} #{name} - #{message}"
+      repo_names = c[:url].match("api.github.com/repos/(.*?)/(.*?)/")
+      repo = "#{repo_names[1]}/#{repo_names[2]}"
+      "#{date} #{name} #{repo} - #{message}"
     end
   end
 end
