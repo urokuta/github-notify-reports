@@ -1,5 +1,6 @@
 require 'octokit'
 require 'parallel'
+require 'active_support/all'
 class GithubStats
   attr_accessor :client
   def initialize(access_token:)
@@ -30,9 +31,9 @@ class GithubStats
     to = date_options[:to]
     date = date_options[:date]
     if from && to
-      _client.commits_between(name, from, to, branch)
+      _client.commits_between(name, from.iso8601, to.iso8601, branch)
     elsif date
-      _client.commits_on(name, date, branch)
+      _client.commits_on(name, date.iso8601, branch)
     else
       raise "wrong date_options: #{date_options.inspect}"
     end
