@@ -39,6 +39,18 @@ class GithubStats
     end
   end
 
+  def issues(state:, labels:)
+    repo_names = target_repo_names
+    all_issues = []
+    Parallel.each(repo_names, in_threads: 10) do |repo_name|
+      _client = GithubStats.get_client(access_token: @access_token)
+      issues = _client.issues(repo_name, state: state, labels: labels)
+      all_issues << issues
+      puts "repo completed: #{repo_name}"
+    end
+    all_issues.flatten
+  end
+
   def commits(**date_options)
     repo_branches = target_repo_branches
     all_commits = []
@@ -70,12 +82,27 @@ class GithubStats
     end
   end
 
+  def name_mapped_issues(state:, labels:)
+    issues = issues(state: state, labels: labels)
+    _name_mapped_issues(issues: issues)
+  end
+
+  def _name_mapped_issues(issues:)
+    result = issues.group_by{|c| c[:assignee][:login]}
+    result.map do |k,v|
+      sorted = v.sort_by{|e| e[:updated_at] }.reverse
+      {name: k, issues: sorted}
+    end
+  end
+
   class << self
     def get_client(access_token:)
       client = Octokit::Client.new(access_token: access_token)
     end
 
     def formatted_commit(commit)
+      sha = commit[:sha]
+      url = commit[:html_url]
       c = commit[:commit]
       a = c[:author]
       name = a[:name][0..8]
@@ -83,7 +110,17 @@ class GithubStats
       message = c[:message]
       repo_names = c[:url].match("api.github.com/repos/(.*?)/(.*?)/")
       repo = "#{repo_names[1]}/#{repo_names[2]}"
-      "#{date} #{name} #{repo} - #{message}"
+      "#{date} #{name} #{repo} <#{url}|[#{sha[0..4]}]> - #{message}"
+    end
+
+    def formatted_issue(issue)
+      i = issue
+      name = i[:assignee][:login]
+      title = i[:title]
+      url = i[:html_url]
+      issue_num = i[:number]
+      updated_at = i[:updated_at].getlocal("+09:00").to_date
+      "#{updated_at} <#{url}|##{issue_num}> #{name} #{title}"
     end
   end
 end
