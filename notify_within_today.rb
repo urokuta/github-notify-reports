@@ -1,2 +1,5 @@
 require './notify_report'
-NotifyReport.notify_today_issues
+hour = Time.now.getlocal("+09:00").hour
+if (hour % 2) == 0
+  NotifyReport.notify_today_issues
+end
