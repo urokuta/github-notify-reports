@@ -108,6 +108,8 @@ class GithubStats
   class << self
     def get_client(access_token:)
       client = Octokit::Client.new(access_token: access_token)
+      client.per_page = 100
+      client
     end
 
     def formatted_commit(commit)
