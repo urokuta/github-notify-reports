@@ -39,12 +39,16 @@ class GithubStats
     end
   end
 
-  def issues(state:, labels:)
+  def issues(state:, labels: nil, since: nil)
     repo_names = target_repo_names
     all_issues = []
     Parallel.each(repo_names, in_threads: 10) do |repo_name|
       _client = GithubStats.get_client(access_token: @access_token)
-      issues = _client.issues(repo_name, state: state, labels: labels)
+      options = {}
+      options.merge!({state: state}) if ! state.nil?
+      options.merge!({labels: labels}) if ! labels.nil?
+      options.merge!({since: since.iso8601}) if ! since.nil?
+      issues = _client.issues(repo_name, options)
       all_issues << issues
       puts "repo completed: #{repo_name}"
     end
@@ -82,13 +86,19 @@ class GithubStats
     end
   end
 
-  def name_mapped_issues(state:, labels:)
-    issues = issues(state: state, labels: labels)
+  def name_mapped_issues(state:, labels: nil, since: nil)
+    issues = issues(state: state, labels: labels, since: since)
     _name_mapped_issues(issues: issues)
   end
 
   def _name_mapped_issues(issues:)
-    result = issues.group_by{|c| c[:assignee][:login]}
+    result = issues.group_by{|c| 
+      if ! c[:assignee].nil?
+        c[:assignee][:login]
+      else
+        c[:user][:login]
+      end
+    }
     result.map do |k,v|
       sorted = v.sort_by{|e| e[:updated_at] }.reverse
       {name: k, issues: sorted}
@@ -115,7 +125,11 @@ class GithubStats
 
     def formatted_issue(issue)
       i = issue
-      name = i[:assignee][:login]
+      name = if ! i[:assignee].nil?
+        i[:assignee][:login]
+      else
+        i[:user][:login]
+      end
       title = i[:title]
       url = i[:html_url]
       issue_num = i[:number]
