@@ -104,12 +104,18 @@ class NotifyReport
       end
     end
 
-    def notify_this_week_issues
+    def notify_this_week_issues(channel: "#reminder")
       Dotenv.load
+      artii = Artii::Base.new
+      today = Time.now.getlocal('+09:00').beginning_of_day
+      yesterday = today - 1.day
       gs = GithubStats.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
       gs.set_filter_repo_names(filter_repo_names)
       name_issues = gs.name_mapped_issues(state: 'open', labels: 'notify-within-this-week')
       text = ""
+      text += "```\n"
+      text += artii.asciify("TASK  REMINDER #{yesterday.to_date.strftime('%^b %d')}")
+      text += "```\n"
       text += "===============================================================\n"
       text += "かすみだよ！今日もお疲れ様！タスクのお知らせをするね:smile:\n"
       if name_issues.count == 0
@@ -126,7 +132,7 @@ class NotifyReport
         end
         text += "ちゃんと今週中に終わらせてね:heart:"
       end
-      slack_say(text, channel: "#reminder")
+      slack_say(text, channel: channel)
     end
     
     def notify_non_commit_user_on_18
@@ -144,10 +150,10 @@ class NotifyReport
       non_commit_users = non_commit_notify_targets.select{|name| name_commits.find{|n| n[:name] == name} == nil}
       text += non_commit_users.map{|name| "<@#{name}|#{name}>さん"}.join(", ")
       text += " だよ:star: \n集計は0時までだから、早めにコミットしてね:heart:"
-      slack_say(text)
+      slack_say(text, channel: "#reminder")
     end
 
-    def lastweek_report
+    def lastweek_report(channel: "#reports")
       Dotenv.load
       artii = Artii::Base.new
       gs = GithubStats.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
@@ -162,7 +168,7 @@ class NotifyReport
       text += artii.asciify("WEEKLY  REPORTS  #{from.to_date.strftime('%^b %d')}")
       text += "```\n"
       text += "今週も開発お疲れ様でした:laughing::heart: 今週のレポートだよっ\n"
-      slack_say(text)
+      slack_say(text, channel: channel)
       name_commits.each do |name_commit|
         text = ""
         name = name_commit[:name]
@@ -175,7 +181,7 @@ class NotifyReport
         text += "\n"
         text += "```\n"
         text += "\n"
-        slack_say(text)
+        slack_say(text, channel: channel)
       end
 
       ###############################
@@ -184,7 +190,7 @@ class NotifyReport
       text = ""
       text += "===============================================================\n"
       text += "今週みんながクローズしたタスク一覧だよっ:heart: たくさん改善されたね:laughing:\n"
-      slack_say(text)
+      slack_say(text, channel: channel)
       name_issues = gs.name_mapped_issues(state: 'closed', since: from)
       name_issues.each do |name_issue|
         name = name_issue[:name]
@@ -195,7 +201,7 @@ class NotifyReport
         text += issues.map{|i| GithubStats.formatted_issue(i)}.join("\n")
         text += "\n"
         text += "```\n"
-        slack_say(text)
+        slack_say(text, channel: channel)
       end
       text
     end
