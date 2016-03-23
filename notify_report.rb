@@ -52,7 +52,8 @@ class NotifyReport
       text = ""
       text += "===============================================================\n"
       text += "今日みんなのクローズしたタスク一覧だよっ:heart: また1つ改善されたね:laughing:\n"
-      name_issues = gs.name_mapped_issues(state: 'closed', since: yesterday)
+      _name_issues = gs.name_mapped_issues(state: 'closed', since: yesterday)
+      name_issues = _name_issues.select{|ni| authors.include?(ni[:name])}
       name_issues.each do |name_issue|
         name = name_issue[:name]
         issues = name_issue[:issues]
@@ -86,7 +87,8 @@ class NotifyReport
       Dotenv.load
       gs = GithubStats.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
       gs.set_filter_repo_names(filter_repo_names)
-      name_issues = gs.name_mapped_issues(state: 'open', labels: 'notify-within-today')
+      _name_issues = gs.name_mapped_issues(state: 'open', labels: 'notify-within-today')
+      name_issues = _name_issues.select{|ni| authors.include?(ni[:name])}
       if name_issues.count != 0
         text = ""
         text += "===============================================================\n"
@@ -111,7 +113,8 @@ class NotifyReport
       yesterday = today - 1.day
       gs = GithubStats.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
       gs.set_filter_repo_names(filter_repo_names)
-      name_issues = gs.name_mapped_issues(state: 'open', labels: 'notify-within-this-week')
+      _name_issues = gs.name_mapped_issues(state: 'open', labels: 'notify-within-this-week')
+      name_issues = _name_issues.select{|ni| authors.include?(ni[:name])}
       text = ""
       text += "```\n"
       text += artii.asciify("TASK  REMINDER #{yesterday.to_date.strftime('%^b %d')}")
@@ -191,7 +194,8 @@ class NotifyReport
       text += "===============================================================\n"
       text += "今週みんながクローズしたタスク一覧だよっ:heart: たくさん改善されたね:laughing:\n"
       slack_say(text, channel: channel)
-      name_issues = gs.name_mapped_issues(state: 'closed', since: from)
+      _name_issues = gs.name_mapped_issues(state: 'closed', since: from)
+      name_issues = _name_issues.select{|ni| authors.include?(ni[:name])}
       name_issues.each do |name_issue|
         name = name_issue[:name]
         issues = name_issue[:issues]
