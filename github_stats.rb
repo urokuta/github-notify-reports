@@ -135,8 +135,10 @@ class GithubStats
       title = i[:title]
       url = i[:html_url]
       issue_num = i[:number]
+      repo_names = i[:url].match("api.github.com/repos/(.*?)/(.*?)/")
+      repo = "#{repo_names[1]}/#{repo_names[2]}"
       updated_at = i[:updated_at].getlocal("+09:00").to_date
-      "#{updated_at} <#{url}|##{issue_num}> #{name} #{title}"
+      "#{updated_at} #{repo} <#{url}|##{issue_num}> #{name} #{title}"
     end
   end
 end
